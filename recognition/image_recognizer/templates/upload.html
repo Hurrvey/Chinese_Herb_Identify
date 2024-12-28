@@ -1,0 +1,123 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- 引入 Bootstrap CSS -->
+    <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: url('{% static 'background01.jpg' %}') no-repeat center center fixed;
+            background-size: cover;
+            transition: background 0.5s;
+        }
+        .card-body {
+            border: 1px solid #ccc;  /* 添加边框 */
+            padding: 20px;  /* 添加内边距 */
+            background-color: transparent;  /* 修改背景颜色为透明 */
+            border-radius: 5px;  /* 添加圆角 */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);  /* 添加阴影 */
+            transition: all 0.3s ease;  /* 添加过渡效果 */
+        }
+        .card-body:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);  /* 鼠标悬停时的阴影效果 */
+        }
+        #preview {
+            width: 100%;
+            height: 200px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        #preview img {
+            max-width: 100%;
+            max-height: 100%;
+            transition: all 0.3s ease;  /* 添加过渡效果 */
+        }
+        .btn-primary {
+            transition: all 0.3s ease;  /* 添加过渡效果 */
+        }
+        .btn-primary:hover {
+            background-color: #0069d9;  /* 鼠标悬停时的背景颜色 */
+            border-color: #0062cc;  /* 鼠标悬停时的边框颜色 */
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5 d-flex align-items-center justify-content-center" style="height: 100vh;">
+        <div class="row justify-content-center" style="border: 1px solid #ccc; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); transition: all 0.3s ease; background-color: rgba(255, 255, 255, 0.8);">
+            <h1 style="margin-top: 50px; font-size: 50px;">基于神经网络的中药材识别系统</h1>
+            <div class="col-md-6" style="margin-top: 70px; margin-bottom: 40px;">
+                <div class="card">
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data" onsubmit="return checkImage();">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="image">上传图片</label>
+                                <input type="file" class="form-control-file" id="image" name="image" onchange="previewImage(this);">
+                            </div>
+                            <div id="preview"></div>
+                            <button type="submit" class="btn btn-primary btn-block">识别图片</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入 Bootstrap JS -->
+    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
+    {% block javascript %}
+    <script>
+        function previewImage(input) {
+            var preview = document.getElementById('preview');
+            preview.innerHTML = '';
+            if (input.files && input.files[0]) {
+                var file = input.files[0];
+                // 检查文件类型
+                if (!file.type.startsWith('image/')) {
+                    alert('请选择一个图片文件');
+                    // 刷新页面
+                    location.reload();
+                    return;
+                }
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var img = document.createElement('img');
+                    img.src = e.target.result;
+                    preview.appendChild(img);
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function checkImage() {
+            var image = document.getElementById('image');
+            if (!image.value) {
+                alert('尚未选择图片，无法进行识别');
+                return false;
+            }
+            return true;
+        }
+        var images = [
+            "{% static 'background01.jpg' %}",
+            "{% static 'background02.jpg' %}",
+            "{% static 'background03.jpg' %}",
+            "{% static 'background04.jpg' %}"
+        ];
+        var currentImage = 0;
+
+        function changeBackgroundImage() {
+            currentImage = (currentImage + 1) % images.length;
+            document.body.style.backgroundImage = "url('" + images[currentImage] + "')";
+        }
+
+        setInterval(changeBackgroundImage, 5000); // 每5秒更换一次背景图片
+    </script>
+    {% endblock %}
+</body>
+</html>
